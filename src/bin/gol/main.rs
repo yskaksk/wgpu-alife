@@ -11,7 +11,10 @@ use winit::{
 
 fn main() {
     let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().with_inner_size(PhysicalSize::new(600.0, 600.0)).build(&event_loop).unwrap();
+    let window = WindowBuilder::new()
+        .with_inner_size(PhysicalSize::new(1000.0, 1000.0))
+        .build(&event_loop)
+        .unwrap();
 
     let mut model: Model = pollster::block_on(Model::new(&window));
 
@@ -19,12 +22,12 @@ fn main() {
         Event::WindowEvent {
             ref event,
             window_id,
-        } if window_id == window.id() => {
-            match event {
-                WindowEvent::CloseRequested | WindowEvent::KeyboardInput { .. } => *control_flow = ControlFlow::Exit,
-                _ => {}
+        } if window_id == window.id() => match event {
+            WindowEvent::CloseRequested | WindowEvent::KeyboardInput { .. } => {
+                *control_flow = ControlFlow::Exit
             }
-        }
+            _ => {}
+        },
         Event::RedrawRequested(_) => {
             model.update();
             match model.render() {

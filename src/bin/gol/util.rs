@@ -142,11 +142,7 @@ impl BindGroupLayoutBuilder {
         }
     }
 
-    pub fn build(
-        &self,
-        device: &Device,
-        label: Option<&str>,
-    ) -> BindGroupLayout {
+    pub fn build(&self, device: &Device, label: Option<&str>) -> BindGroupLayout {
         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &self.entries,
             label,
@@ -231,4 +227,3 @@ pub fn compute_work_group_count(
     let y = (height + workgroup_height - 1) / workgroup_height;
     return (x, y);
 }
-
