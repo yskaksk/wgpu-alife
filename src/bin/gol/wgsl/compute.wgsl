@@ -11,7 +11,7 @@ fn cell_to_index(x: i32, y: i32, n_rows: u32) -> u32 {
 }
 
 @compute
-@workgroup_size(64)
+@workgroup_size(256)
 fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     let length = arrayLength(&cellsSrc);
     let index = global_invocation_id.x;
