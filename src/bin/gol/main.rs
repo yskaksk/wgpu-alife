@@ -1,5 +1,4 @@
 mod model;
-mod util;
 
 use model::Model;
 use winit::{
@@ -12,7 +11,7 @@ use winit::{
 fn main() {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
-        .with_inner_size(PhysicalSize::new(1000.0, 1000.0))
+        .with_inner_size(PhysicalSize::new(2000.0, 2000.0))
         .build(&event_loop)
         .unwrap();
 

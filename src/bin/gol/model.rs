@@ -6,7 +6,7 @@ use rand::{
 use wgpu::{Buffer, BufferUsages, Device, Queue, Surface, SurfaceConfiguration};
 use winit::window::Window;
 
-use crate::util::{
+use wgpu_alife::wgpu_utils::{
     create_buffer, create_compute_pipeline, create_render_pipeline, BindGroupBuilder,
     BindGroupLayoutBuilder,
 };
@@ -85,7 +85,7 @@ impl Resources {
         let render_pipeline =
             create_render_pipeline(device, config, vertex_buffer_layouts, &draw_shader);
 
-        let work_group_count = (n_cells as f32 / 64.0).ceil() as u32;
+        let work_group_count = (n_cells as f32 / 256.0).ceil() as u32;
 
         Resources {
             cell_bind_groups,
