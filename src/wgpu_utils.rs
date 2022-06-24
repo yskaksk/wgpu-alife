@@ -227,3 +227,35 @@ pub fn compute_work_group_count(
     let y = (height + workgroup_height - 1) / workgroup_height;
     return (x, y);
 }
+
+pub fn padded_bytes_per_row(width: u32) -> usize {
+    let bytes_per_row = width as usize * 4;
+    let padding = (256 - bytes_per_row % 256) % 256;
+    bytes_per_row + padding
+}
+
+pub fn copy_texture_to_buffer(
+    command_encoder: &mut wgpu::CommandEncoder,
+    texture: &wgpu::Texture,
+    texture_size: Extent3d,
+    buffer: &wgpu::Buffer,
+) {
+    let padded_bytes_per_row = padded_bytes_per_row(texture_size.width);
+    command_encoder.copy_texture_to_buffer(
+        wgpu::ImageCopyTexture {
+            aspect: wgpu::TextureAspect::All,
+            texture: &texture,
+            mip_level: 0,
+            origin: wgpu::Origin3d::ZERO,
+        },
+        wgpu::ImageCopyBuffer {
+            buffer: &buffer,
+            layout: wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: std::num::NonZeroU32::new(padded_bytes_per_row as u32),
+                rows_per_image: std::num::NonZeroU32::new(texture_size.height),
+            },
+        },
+        texture_size,
+    );
+}
