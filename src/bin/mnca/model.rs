@@ -12,7 +12,6 @@ use wgpu_alife::wgpu_utils::{
     copy_texture_to_buffer, create_buffer, create_compute_pipeline, create_render_pipeline,
     create_texture, padded_bytes_per_row, BindGroupBuilder, BindGroupLayoutBuilder,
 };
-
 struct Resources {
     cell_bind_groups: Vec<wgpu::BindGroup>,
     cell_buffers: Vec<wgpu::Buffer>,
