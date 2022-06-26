@@ -29,7 +29,13 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     let dt = 1.0;
     let Du = 0.00002;
     let Dv = 0.00001;
-    let f = 0.04;
+    // スポット
+    //let f = 0.022;
+    //let k = 0.058;
+    // 非結晶
+    //let f = 0.04;
+    //let k = 0.06;
+    let f = 0.025;
     let k = 0.06;
 
     let x = i32(index % n_rows);
@@ -37,16 +43,34 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
 
     let cell = cellsSrc[index];
 
-    let l_u = (cellsSrc[cell_to_index(x - 1, y,     n_rows)].u
-             + cellsSrc[cell_to_index(x,     y - 1, n_rows)].u
-             + cellsSrc[cell_to_index(x + 1, y,     n_rows)].u
-             + cellsSrc[cell_to_index(x,     y + 1, n_rows)].u
-             - 4.0 * cell.u) / (dx * dx);
-    let l_v = (cellsSrc[cell_to_index(x - 1, y,     n_rows)].v
-             + cellsSrc[cell_to_index(x,     y - 1, n_rows)].v
-             + cellsSrc[cell_to_index(x + 1, y,     n_rows)].v
-             + cellsSrc[cell_to_index(x,     y + 1, n_rows)].v
-             - 4.0 * cell.v) / (dx * dx);
+    var l_u = 0.0;
+    if (x - 1 >= 0) {
+        l_u += cellsSrc[cell_to_index(x - 1, y, n_rows)].u;
+    }
+    if (y - 1 >= 0) {
+        l_u += cellsSrc[cell_to_index(x, y - 1, n_rows)].u;
+    }
+    if (x + 1 < i32(n_rows)) {
+        l_u += cellsSrc[cell_to_index(x + 1, y, n_rows)].u;
+    }
+    if (y + 1 < i32(n_rows)) {
+        l_u += cellsSrc[cell_to_index(x, y + 1, n_rows)].u;
+    }
+    l_u = (l_u - 4.0 * cell.u) / (dx * dx);
+    var l_v = 0.0;
+    if (x - 1 >= 0) {
+        l_v += cellsSrc[cell_to_index(x - 1, y, n_rows)].v;
+    }
+    if (y - 1 >= 0) {
+        l_v += cellsSrc[cell_to_index(x, y - 1, n_rows)].v;
+    }
+    if (x + 1 < i32(n_rows)) {
+        l_v += cellsSrc[cell_to_index(x + 1, y, n_rows)].v;
+    }
+    if (y + 1 < i32(n_rows)) {
+        l_v += cellsSrc[cell_to_index(x, y + 1, n_rows)].v;
+    }
+    l_v = (l_v - 4.0 * cell.v) / (dx * dx);
 
     let dudt = Du * l_u - cell.u * cell.v * cell.v + f * (1.0 - cell.u);
     let dvdt = Dv * l_v + cell.u * cell.v * cell.v - (f + k)*cell.v;
