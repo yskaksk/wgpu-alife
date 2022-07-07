@@ -31,7 +31,7 @@ impl Resources {
             .add_storage_buffer(wgpu::BufferSize::new((n_cells * 4) as _), false)
             .build(device, None);
 
-        let compute_shader = device.create_shader_module(&wgpu::include_wgsl!("wgsl/compute.wgsl"));
+        let compute_shader = device.create_shader_module(wgpu::include_wgsl!("wgsl/compute.wgsl"));
         let compute_pipeline =
             create_compute_pipeline(device, &[&cell_bind_group_layout], &compute_shader);
 
@@ -82,7 +82,7 @@ impl Resources {
                 attributes: &wgpu::vertex_attr_array![1 => Float32x2],
             },
         ];
-        let draw_shader = device.create_shader_module(&wgpu::include_wgsl!("wgsl/draw.wgsl"));
+        let draw_shader = device.create_shader_module(wgpu::include_wgsl!("wgsl/draw.wgsl"));
         let render_pipeline =
             create_render_pipeline(device, config, vertex_buffer_layouts, &draw_shader);
 
@@ -110,7 +110,7 @@ impl Resources {
     fn render_pass(
         &self,
         encoder: &mut wgpu::CommandEncoder,
-        color_attachments: &[wgpu::RenderPassColorAttachment],
+        color_attachments: &[Option<wgpu::RenderPassColorAttachment>],
         frame_num: usize,
     ) {
         let render_pass_descriptor = wgpu::RenderPassDescriptor {
@@ -161,7 +161,7 @@ impl Model {
             .unwrap();
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface.get_preferred_format(&adapter).unwrap(),
+            format: surface.get_supported_formats(&adapter)[0],
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
@@ -192,7 +192,7 @@ impl Model {
         let view = frame
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-        let color_attachments = [wgpu::RenderPassColorAttachment {
+        let color_attachments = [Some(wgpu::RenderPassColorAttachment {
             view: &view,
             resolve_target: None,
             ops: wgpu::Operations {
@@ -204,7 +204,7 @@ impl Model {
                 }),
                 store: true,
             },
-        }];
+        })];
         self.resources
             .render_pass(&mut encoder, &color_attachments, self.frame_num);
         self.queue.submit(Some(encoder.finish()));
@@ -238,8 +238,9 @@ impl Model {
             wgpu::TextureFormat::Bgra8UnormSrgb,
             wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
         );
-        let color_attachments = [wgpu::RenderPassColorAttachment {
-            view: &target_texture.create_view(&wgpu::TextureViewDescriptor::default()),
+        let view = target_texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let color_attachments = [Some(wgpu::RenderPassColorAttachment {
+            view: &view,
             resolve_target: None,
             ops: wgpu::Operations {
                 load: wgpu::LoadOp::Clear(wgpu::Color {
@@ -250,7 +251,7 @@ impl Model {
                 }),
                 store: true,
             },
-        }];
+        })];
         self.resources
             .render_pass(&mut command_encoder, &color_attachments, self.frame_num);
 
